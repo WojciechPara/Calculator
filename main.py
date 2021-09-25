@@ -9,13 +9,6 @@ import math
 Window.size = (300, 400)
 Window.minimum_width, Window.minimum_height = Window.size
 
-# żeby self.result_int przejmował działania i można było się do nich odnieść
-# żeby na wyświetlaczu pomiędzy składnikami operacji wyświetlana była spacja
-# gdzie można - pozbyć się result_int, pobierać wartość dla result_txt prosto z temp
-# w miejscach 'str(self.temp)' usunąć str bo self.temp to zawsze tekst
-# napisać funkcję która w self.temp sprawdzi czy są dwa operatory obok siebie i nie doda kolejnego
-# warunki napisać wszędzie w tej samej kolejności
-
 class MainWidget(BoxLayout):
     operators = ["+", "-", "*", "/"]
     temp = "0"
@@ -149,8 +142,7 @@ class MainWidget(BoxLayout):
             else:
                 self.temp = self.temp + number
                 self.result_txt = self.temp.replace(".", ",")
-
-# naprawić, nie działa przy '1+0.0' --> '1.0'
+                
     def call_operation(self, operation_symbol):
         # calls operation '+ - * or /' for self.temp
         operator = operation_symbol
@@ -223,7 +215,6 @@ class MainWidget(BoxLayout):
                     self.temp = str(eval(self.temp)) + operator
                     self.result_txt = str(self.temp).replace(".", ",")
 
-# napisać kod
     def button_percent(self):
         pass
 
@@ -304,8 +295,7 @@ class MainWidget(BoxLayout):
         self.result_txt = "0"
         self.temp = "0"
 
-# naprawić, usuwa cyfry z wyniku
-    def button_backspace(self):
+   def button_backspace(self):
         if self.temp == 0 and self.temp == "0":
             pass
         elif len(str(self.temp)) > 1:
@@ -317,7 +307,6 @@ class MainWidget(BoxLayout):
             self.result_txt = str(self.result_int).replace(".", ",")
             self.temp = "0"
 
-# naprawić, nie działa temp z operatorem
     def button_one_divided_by(self):
         if self.temp == 0 or self.temp == "0" or self.temp == "0.0":
             self.result_txt = "Can't divide by 0!"
@@ -327,7 +316,6 @@ class MainWidget(BoxLayout):
             self.result_txt = str(self.result_int).replace(".", ",")
             self.temp = str(self.result_int)
 
-# naprawić
     def button_exponentation(self):
         if self.temp != 0 and self.temp != "0":
             self.result_int = float(self.temp) ** 2
@@ -336,7 +324,6 @@ class MainWidget(BoxLayout):
         else:
             self.temp = "0"
 
-# naprawić, nie działa przy '1+2'
     def button_square_root(self):
         if float(self.temp) >= 0:
             self.result_int = math.sqrt(float(self.temp))
@@ -356,8 +343,6 @@ class MainWidget(BoxLayout):
             self.temp = str(self.temp) + "000"
             self.result_txt = str(self.temp).replace(".", ",")
 
-# naprawić ?
-# dopisać dot_pos
     def button_coma(self):
         if "." not in str(self.temp):
             if str(self.temp)[-1] in self.operators:
@@ -383,11 +368,6 @@ class MainWidget(BoxLayout):
                             self.temp = str(self.temp) + "."
                             self.result_txt = str(self.temp).replace(".", ",")
 
-# -----------------NAPRAWIĆ------------------------------------------------------------------------------------------
-# zrobić by klikając powtarzało ostatnią operację i aktualizowało temp
-# błąd przy '10+2,'
-# pokazuje wynik '0,0'
-# pozwala dopisywać liczby do wyniku, edytować self.int ... ?
     def button_equals(self):
         operator_pos = self.check_string_for_operator(self.temp)
         dot_pos = self.check_string_for_dot(self.temp)
@@ -396,21 +376,17 @@ class MainWidget(BoxLayout):
             if bool(operator_pos) == True:
                 if bool(dot_pos) == True:
                     if bool(zeros_after_dot) == True:
-                        print("oper+dot+.0")
                         try:
                             self.result_int = eval(self.temp[:dot_pos])
                             self.result_txt = str(self.result_int).replace(".", ",")
                             self.temp = str(self.result_int)
                         except:
-                            print("exception...")
+                            print("exception... ?????")
                     else: # example '1+2.05'
                         self.result_int = eval(self.temp)
                         self.temp = str(self.result_int)
                         self.result_txt = self.temp.replace(".", ",")
                 else:
-                    print("oper+NOdot")
-                    # napisać żeby robiło operację na tempie do operatora
-                    # spr czy operator na końcu
                     try:
                         self.result_int = eval(self.temp)
                         self.result_txt = str(
