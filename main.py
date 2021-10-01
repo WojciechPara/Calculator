@@ -9,6 +9,7 @@ import math
 Window.size = (300, 400)
 Window.minimum_width, Window.minimum_height = Window.size
 
+
 class MainWidget(BoxLayout):
     operators = ["+", "-", "*", "/"]
     temp = "0"
@@ -16,10 +17,6 @@ class MainWidget(BoxLayout):
     result_txt = StringProperty("0")
 
     def check_string_for_operator(self, string):
-        # iterates through STRING starting from the end
-        # checks if there is any operator '+', '-', '*', or '/'
-        # if yes - returns most-right operator position for positive numbers
-        # if not - returns False
         operator_pos = 0
         operator_found = False
         for i in string[-1::-1]:
@@ -36,7 +33,6 @@ class MainWidget(BoxLayout):
             return False
 
     def check_string_for_double_operator(self, string):
-        # checks if there are two operator signs close to each other
         operator_pos = self.check_string_for_operator(string)
         operator_combinations = ["+-", "--", "*-", "/-"]
         if operator_pos != -1:
@@ -49,10 +45,6 @@ class MainWidget(BoxLayout):
             return False
 
     def check_string_for_dot(self, string):
-        # iterates through self.temp starting from the end
-        # checks if there is any dot "."
-        # if yes - returns most-right dot position
-        # if not - returns False
         dot_pos = 0
         for i in string[-1::-1]:
             dot_pos -= 1
@@ -62,10 +54,6 @@ class MainWidget(BoxLayout):
             return False
 
     def check_string_for_zeros_at_the_end(self, string):
-        # if selt.temp is float type, iterates through starting from the end
-        # checks if the number can be shortened from 'X.0' to 'X'
-        # if yes - returns True
-        # in not - returns False
         operator_pos = self.check_string_for_operator(string)
         dot_pos = self.check_string_for_dot(string)
         if operator_pos < -1:
@@ -74,11 +62,9 @@ class MainWidget(BoxLayout):
                     return False
                 else:
                     if dot_pos == -1:
-                        # example '1+2.'
                         return False
                     else:
-                        # example '1+2.00'
-                        temporary = int(string[dot_pos + 1 :])
+                        temporary = int(string[dot_pos + 1:])
                         if temporary == 0:
                             return True
                         else:
@@ -87,30 +73,18 @@ class MainWidget(BoxLayout):
                 return False
         else:
             if string.startswith("0"):
-                # starts with 0
-                # example '0.xxx'
                 if string.endswith("+"):
-                    # example '0.05+'
                     if eval(string[:-1]) == 0:
-                        # if self.temp[:-1] converted to number == 0
                         return True
                     else:
-                        # if self.temp[:-1] converted to number != 0
                         return False
                 else:
-                    # doesnt end with '+'
-                    # example '0.050'
                     if eval(string) == 0:
-                        # if self.temp converted to number == 0
                         return True
                     else:
-                        # if self.temp converted to number != 0
                         return False
             else:
-                # starts with number != 0
-                # example '1.xxx'
                 if string.endswith("+"):
-                    # example '1.xx+'
                     if dot_pos < -2:
                         zeros_count = int(f"{-(dot_pos+2)}")
                         multiplier = int("1" + int(zeros_count) * "0")
@@ -120,7 +94,6 @@ class MainWidget(BoxLayout):
                         else:
                             return False
                 else:
-                    # example '1.xxx'
                     if dot_pos < -1:
                         zeros_count = int(f"{-(dot_pos + 1)}")
                         multiplier = int("1" + int(zeros_count) * "0")
@@ -131,7 +104,6 @@ class MainWidget(BoxLayout):
                             return False
 
     def call_number(self, number):
-        # calls number '0,1,2,3,4,5,6,7,8,9' for self.temp
         if self.temp != "0" and number == "0":
             self.temp = self.temp + number
             self.result_txt = self.temp.replace(".", ",")
@@ -142,34 +114,26 @@ class MainWidget(BoxLayout):
             else:
                 self.temp = self.temp + number
                 self.result_txt = self.temp.replace(".", ",")
-                
+
     def call_operation(self, operation_symbol):
-        # calls operation '+ - * or /' for self.temp
         operator = operation_symbol
         operator_pos = self.check_string_for_operator(self.temp)
         dot_pos = self.check_string_for_dot(self.temp)
         zeros_after_dot = self.check_string_for_zeros_at_the_end(self.temp)
         if bool(operator_pos) == False:
-            # no operator
             if bool(dot_pos) == False:
-                # no dot, example '1' -> '1+'
                 self.temp = self.temp + operator
                 self.result_txt = self.temp
             else:
-                # found dot
                 if dot_pos == -1:
-                    # dot at the end, example '1.' -> '1+'
                     self.temp = self.temp[:-1] + operator
                     self.result_txt = self.temp
                 else:
-                    # dot in the middle
                     if bool(zeros_after_dot) == True:
-                        # example '1.00' -> '1+'
                         self.temp = self.temp[:dot_pos] + operator
                         self.result_txt = self.temp
                     else:
                         if self.temp.endswith("0"):
-                            # example '1.050' -> '1.05+'
                             last_zero_pos = 0
                             for i in self.temp[-1::-1]:
                                 if i == "0":
@@ -179,44 +143,54 @@ class MainWidget(BoxLayout):
                             self.temp = self.temp[:last_zero_pos] + operator
                             self.result_txt = self.temp.replace(".", ",")
                         else:
-                            # example '1.05' -> '1.05+'
                             self.temp = self.temp + operator
                             self.result_txt = self.temp.replace(".", ",")
         else:
-            # found operator
             if bool(dot_pos) == False:
-                # no dot
                 if operator_pos == -1:
-                    # operator at the end
                     if self.temp[-1] == operator:
-                        # example '1+' -> pass
                         pass
                     else:
-                        # different operator exchange, example '1-' -> '1+'
                         self.temp = self.temp[:-1] + operator
                         self.result_txt = self.temp
                 else:
-                    # operator in the middle, example '1+1'
                     self.temp = str(eval(self.temp)) + operator
                     self.result_txt = self.temp
             else:
-                # operator + dot
                 if operator_pos == -1:
-                    # operator at the end
                     if self.temp[-1] == operator:
-                        # example '1.05+' -> pass
                         pass
                     else:
-                        # different operator exchange, example '1-' -> '1+'
                         self.temp = self.temp[:-1] + operator
                         self.result_txt = self.temp.replace(".", ",")
                 else:
-                    # operator in the middle
                     self.temp = str(eval(self.temp)) + operator
-                    self.result_txt = str(self.temp).replace(".", ",")
+                    self.result_txt = self.temp.replace(".", ",")
 
     def button_percent(self):
-        pass
+        operator_pos = self.check_string_for_operator(self.temp)
+        dot_pos = self.check_string_for_dot(self.temp)
+        if bool(operator_pos) == False:
+            self.temp = "0"
+            self.result_txt = "0"
+        else:
+            if bool(dot_pos) == True:
+                if operator_pos == -1:
+                    self.temp = self.temp + \
+                        str(eval(self.temp[:-1]) * 0.01)
+                    self.result_txt = self.temp.replace(".", ",")
+                else:
+                    self.temp = self.temp[:operator_pos + 1] + str(
+                        float(self.temp[operator_pos + 1:]) * 0.01 * float(self.temp[:operator_pos]))
+                    self.result_txt = self.temp.replace(".", ",")
+            else:
+                if operator_pos == -1:
+                    self.temp = self.temp + str(int(self.temp[:-1]) * 0.01)
+                    self.result_txt = self.temp.replace(".", ",")
+                else:
+                    self.temp = self.temp[:operator_pos + 1] + str(
+                        int(self.temp[operator_pos + 1:]) * 0.01 * int(self.temp[:operator_pos]))
+                    self.result_txt = self.temp.replace(".", ",")
 
     def button_plus_minus(self):
         operator_pos = self.check_string_for_operator(self.temp)
@@ -225,27 +199,17 @@ class MainWidget(BoxLayout):
         if bool(two_close_operators) == True:
             pass
         else:
-            # check for operator
             if self.temp != "0":
                 if bool(operator_pos) == False and self.temp != "0":
-                    # no operator
                     if bool(dot_pos) == False:
-                        # no dot, example '10' or '-10'
                         self.result_txt = str(-1 * int(self.temp))
                         self.temp = str(self.result_txt)
                     elif dot_pos == -1 and not "." in self.temp[:-1]:
-                        # dot at the end, example '10.' or '-10.'
                         self.result_txt = str(-1 * int(self.temp[:-1])) + ","
                         self.temp = str(-1 * int(self.temp[:-1])) + "."
                     else:
-                        # dot in the middle, example '1.05' or '-1.05'
-                        # split to '1' and '.05'
-                        # multiplicate '1' by -1 and concatenate '-1' + '.05'
-                        # result '-1.05'
                         self.result_int = -1 * int(self.temp[:dot_pos])
                         if self.result_int == 0 and self.temp.startswith("0"):
-                            # for example '0.05' can't do '0 * -1' so add '-' to the beginning and concatenate '-' + '0' + '.05'
-                            # result '-0.05'
                             if self.temp.startswith("-"):
                                 self.result_txt = self.temp[:dot_pos] + \
                                     self.temp[dot_pos:].replace(".", ",")
@@ -257,36 +221,27 @@ class MainWidget(BoxLayout):
                                     self.temp[dot_pos:].replace(".", ",")
                                 self.temp = "-" + \
                                     str(self.result_int) + self.temp[dot_pos:]
-
                         else:
-                            # for example '1.05'
                             self.result_txt = str(
                                 self.result_int) + self.temp[dot_pos:].replace(".", ",")
                             self.temp = str(self.result_int) + \
                                 self.temp[dot_pos:]
                 else:
-                    # operator found
                     if bool(dot_pos) == False:
-                        # no dot
                         if operator_pos == -1:
-                            # operator at the end, example '10+' or '-10+'
                             self.result_txt = f"{self.temp}neg({self.temp[:-1]})"
                             self.temp = f"{self.temp}({-1 * int(self.temp[:-1])})"
                         else:
-                            # operator in the middle, example '10+10' or '-10+10'
                             self.result_txt = f"{self.temp[:operator_pos + 1]}{str(-1 * int(self.temp[operator_pos + 1:]))}"
                             self.temp = f"{self.temp[:operator_pos + 1]}{str(-1 * int(self.temp[operator_pos + 1:]))}"
                     else:
-                        # dot found
                         if operator_pos == -1:
-                            # operator at the end, dot in the middle, example '10.5+' or '-10.5+'
                             self.result_txt = f"{self.temp.replace('.',',')}neg({self.temp[:-1].replace('.',',')})"
                             if self.temp.startswith("-"):
                                 self.temp = f"{self.temp}({self.temp[1:-1]})"
                             else:
                                 self.temp = f"{self.temp}(-{self.temp[:-1]})"
                         else:
-                            # operator in the middle, float numbers
                             self.result_txt = f"{self.temp[:operator_pos + 1].replace('.',',')}-{self.temp[operator_pos + 1:].replace('.',',')}"
                             self.temp = self.result_txt.replace(",", ".")
 
@@ -295,7 +250,7 @@ class MainWidget(BoxLayout):
         self.result_txt = "0"
         self.temp = "0"
 
-   def button_backspace(self):
+    def button_backspace(self):
         if self.temp == 0 and self.temp == "0":
             pass
         elif len(str(self.temp)) > 1:
@@ -308,34 +263,80 @@ class MainWidget(BoxLayout):
             self.temp = "0"
 
     def button_one_divided_by(self):
-        if self.temp == 0 or self.temp == "0" or self.temp == "0.0":
-            self.result_txt = "Can't divide by 0!"
-
+        operator_pos = self.check_string_for_operator(self.temp)
+        if bool(operator_pos) == True:
+            if operator_pos == -1:
+                if eval(self.temp[:-1]) == 0:
+                    self.result_txt = "Can't divide by 0!"
+                else:
+                    self.result_txt = self.temp.replace(
+                        ".", ",") + "1/" + self.temp[:-1].replace(".", ",")
+                    self.temp = self.temp + str(1 / eval(self.temp[:-1]))
+            else:
+                if eval(self.temp[operator_pos + 1:]) == 0:
+                    self.result_txt = "Can't divide by 0!"
+                else:
+                    self.result_txt = self.temp[:operator_pos + 1].replace(
+                        ".", ",") + "1/" + self.temp[operator_pos + 1:].replace(".", ",")
+                    self.temp = self.temp[:operator_pos + 1] + \
+                        str(1 / eval(self.temp[operator_pos + 1:]))
         else:
-            self.result_int = 1 / float(self.temp)
-            self.result_txt = str(self.result_int).replace(".", ",")
-            self.temp = str(self.result_int)
+            if eval(self.temp) == 0:
+                self.result_txt = "Can't divide by 0!"
+            else:
+                if bool(operator_pos) == True:
+                    pass
+                else:
+                    self.result_int = 1 / float(self.temp)
+                    self.result_txt = str(self.result_int).replace(".", ",")
+                    self.temp = str(self.result_int)
 
     def button_exponentation(self):
-        if self.temp != 0 and self.temp != "0":
-            self.result_int = float(self.temp) ** 2
-            self.result_txt = str(self.result_int).replace(".", ",")
-            self.temp = str(self.result_int)
-        else:
-            self.temp = "0"
-
-    def button_square_root(self):
-        if float(self.temp) >= 0:
-            self.result_int = math.sqrt(float(self.temp))
-            if len(str(self.result_int)) > 3:
-                str_sqrt_result = f"{self.result_int:.12f}"
-                self.result_txt = str_sqrt_result.replace(".", ",")
-                self.temp = str(self.result_int)
+        operator_pos = self.check_string_for_operator(self.temp)
+        if bool(operator_pos) == True:
+            if operator_pos == -1:
+                if self.temp[:-1] == "0":
+                    self.temp = "0+0"
+                    self.result_txt = "0+sqr(0)"
+                else:
+                    self.result_txt = f"{self.temp.replace('.',',')}sqr({self.temp.replace('.',',')[:-1]})"
+                    self.temp = f"{self.temp}{eval(self.temp[:-1]) ** 2}"
             else:
+                self.result_txt = f"{self.temp.replace('.',',')[:operator_pos + 1]}sqr({self.temp.replace('.',',')[operator_pos + 1:]})"
+                self.temp = f"{self.temp[:operator_pos + 1]}{eval(self.temp[operator_pos + 1:]) ** 2}"
+        else:
+            if self.temp != "0":
+                self.result_int = eval(self.temp) ** 2
                 self.result_txt = str(self.result_int).replace(".", ",")
                 self.temp = str(self.result_int)
+            else:
+                self.temp = "0"
+
+    def button_square_root(self):
+        operator_pos = self.check_string_for_operator(self.temp)
+        if self.temp.startswith("-") and bool(operator_pos) == False:
+            self.result_txt = "Wrong data input!"
+        elif self.temp.startswith("-") and operator_pos == -1:
+            self.result_txt = "Wrong data input!"
         else:
-            pass
+            if bool(operator_pos) == True:
+                if operator_pos == -1:
+                    self.result_txt = f"{self.temp}sqrt({self.temp[:-1]})"
+                    self.temp = self.temp + \
+                        str(math.sqrt(eval(self.temp[:-1])))
+                else:
+                    self.result_txt = f"{self.temp[:operator_pos + 1]}sqrt({self.temp[operator_pos + 1:]})"
+                    self.temp = self.temp[:operator_pos + 1] + \
+                        str(math.sqrt(eval(self.temp[operator_pos + 1:])))
+            else:
+                self.result_int = math.sqrt(eval(self.temp))
+                if len(str(self.result_int)) > 3:
+                    str_sqrt_result = f"{self.result_int:.12f}"
+                    self.result_txt = str_sqrt_result.replace(".", ",")
+                    self.temp = str(self.result_int)
+                else:
+                    self.result_txt = str(self.result_int).replace(".", ",")
+                    self.temp = str(self.result_int)
 
     def button_000(self):
         operator_pos = self.check_string_for_operator(self.temp)
@@ -344,15 +345,9 @@ class MainWidget(BoxLayout):
             self.result_txt = str(self.temp).replace(".", ",")
 
     def button_coma(self):
-        if "." not in str(self.temp):
-            if str(self.temp)[-1] in self.operators:
-                self.temp = str(self.temp) + "0."
-                self.result_txt = str(self.temp).replace(".", ",")
-            else:
-                self.temp = str(self.temp) + "."
-                self.result_txt = str(self.temp).replace(".", ",")
-        else:
-            if "." == str(self.temp)[-1]:
+        dot_pos = self.check_string_for_dot(self.temp)
+        if bool(dot_pos) == True:
+            if dot_pos == -1:
                 pass
             else:
                 counter_temp_characters = 0
@@ -367,6 +362,13 @@ class MainWidget(BoxLayout):
                         else:
                             self.temp = str(self.temp) + "."
                             self.result_txt = str(self.temp).replace(".", ",")
+        else:
+            if str(self.temp)[-1] in self.operators:
+                self.temp = str(self.temp) + "0."
+                self.result_txt = str(self.temp).replace(".", ",")
+            else:
+                self.temp = str(self.temp) + "."
+                self.result_txt = str(self.temp).replace(".", ",")
 
     def button_equals(self):
         operator_pos = self.check_string_for_operator(self.temp)
@@ -376,75 +378,29 @@ class MainWidget(BoxLayout):
             if bool(operator_pos) == True:
                 if bool(dot_pos) == True:
                     if bool(zeros_after_dot) == True:
-                        try:
-                            self.result_int = eval(self.temp[:dot_pos])
-                            self.result_txt = str(self.result_int).replace(".", ",")
-                            self.temp = str(self.result_int)
-                        except:
-                            print("exception... ?????")
-                    else: # example '1+2.05'
+                        self.result_int = eval(self.temp[:dot_pos])
+                        self.result_txt = str(
+                            self.result_int).replace(".", ",")
+                        self.temp = str(self.result_int)
+                    else:
                         self.result_int = eval(self.temp)
                         self.temp = str(self.result_int)
                         self.result_txt = self.temp.replace(".", ",")
                 else:
-                    try:
+                    if operator_pos == -1:
+                        self.result_txt = (
+                            self.temp + self.temp[:-1]).replace(".", ",")
+                        self.temp = self.temp + self.temp[:-1]
+                    else:
                         self.result_int = eval(self.temp)
                         self.result_txt = str(
                             self.result_int).replace(".", ",")
                         self.temp = str(self.result_int)
-                    except:
-                        pass
             else:
                 if str(eval(self.temp)).endswith(".0"):
                     self.result_int = eval(self.temp)
                     self.temp = str(self.result_int)[:-2]
                     self.result_txt = self.temp.replace(".", ",")
-                else:
-                    pass
-        else:
-            pass
-
-    def button_addition(self):
-        self.call_operation("+")
-
-    def button_substraction(self):
-        self.call_operation("-")
-
-    def button_multiplication(self):
-        self.call_operation("*")
-
-    def button_division(self):
-        self.call_operation("/")
-
-    def button_0(self):
-        self.call_number("0")
-
-    def button_1(self):
-        self.call_number("1")
-
-    def button_2(self):
-        self.call_number("2")
-
-    def button_3(self):
-        self.call_number("3")
-
-    def button_4(self):
-        self.call_number("4")
-
-    def button_5(self):
-        self.call_number("5")
-
-    def button_6(self):
-        self.call_number("6")
-
-    def button_7(self):
-        self.call_number("7")
-
-    def button_8(self):
-        self.call_number("8")
-
-    def button_9(self):
-        self.call_number("9")
 
 
 class Calc(App):
