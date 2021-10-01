@@ -321,13 +321,12 @@ class MainWidget(BoxLayout):
         else:
             if bool(operator_pos) == True:
                 if operator_pos == -1:
-                    self.result_txt = f"{self.temp}sqrt({self.temp[:-1]})"
+                    self.result_txt = f"{self.temp.replace('.',',')}sqrt({self.temp[:-1].replace('.',',')})"
                     self.temp = self.temp + \
                         str(math.sqrt(eval(self.temp[:-1])))
                 else:
-                    self.result_txt = f"{self.temp[:operator_pos + 1]}sqrt({self.temp[operator_pos + 1:]})"
-                    self.temp = self.temp[:operator_pos + 1] + \
-                        str(math.sqrt(eval(self.temp[operator_pos + 1:])))
+                    self.result_txt = f"{self.temp[:operator_pos + 1].replace('.',',')}sqrt({self.temp[operator_pos + 1:].replace('.',',')})"
+                    self.temp = self.temp[:operator_pos + 1] + str(math.sqrt(eval(self.temp[operator_pos + 1:])))
             else:
                 self.result_int = math.sqrt(eval(self.temp))
                 if len(str(self.result_int)) > 3:
