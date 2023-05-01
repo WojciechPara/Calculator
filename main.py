@@ -1,4 +1,4 @@
-rom kivy.app import App
+from kivy.app import App
 from kivy.core.window import Window
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
